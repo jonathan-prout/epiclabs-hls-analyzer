@@ -9,6 +9,7 @@ from ts_segment import TSSegmentParser
 from videoframesinfo import VideoFramesInfo
 
 
+global num_segments_to_analyze_per_playlist, max_frames_to_show
 
 num_segments_to_analyze_per_playlist = 1
 max_frames_to_show = 30
@@ -175,34 +176,37 @@ def analyze_variants_frame_alignment():
                 print ("Warning: Variants {} bps and {} bps, segment {}, are not aligned (first frame PTS not equal {} != {})".format(bw, bwkey, segment_index, vf.segmentsFirstFramePts[segment_index], value))
 
 # MAIN
-parser = argparse.ArgumentParser(description='Analyze HLS streams and gets useful information')
+if __name__ == "__main__":
 
-parser.add_argument('url', metavar='Url', type=str,
-               help='Url of the stream to be analyzed')
+    parser = argparse.ArgumentParser(description='Analyze HLS streams and gets useful information')
 
-parser.add_argument('-s', action="store", dest="segments", type=int, default=1,
-               help='Number of segments to be analyzed per playlist')
+    parser.add_argument('url', metavar='Url', type=str,
+                   help='Url of the stream to be analyzed')
 
-parser.add_argument('-l', action="store", dest="frame_info_len", type=int, default=30,
-               help='Max number of frames per track whose information will be reported')
+    parser.add_argument('-s', action="store", dest="segments", type=int, default=1,
+                   help='Number of segments to be analyzed per playlist')
 
-args = parser.parse_args()
+    parser.add_argument('-l', action="store", dest="frame_info_len", type=int, default=30,
+                   help='Max number of frames per track whose information will be reported')
 
-m3u8_obj = m3u8.load(args.url)
-num_segments_to_analyze_per_playlist = args.segments
-max_frames_to_show = args.frame_info_len
+    args = parser.parse_args()
 
-if(m3u8_obj.is_variant):
-    print ("Master playlist. List of variants:")
+    m3u8_obj = m3u8.load(args.url)
 
-    for playlist in m3u8_obj.playlists:
-        print("\tPlaylist: {}, bw: {}".format(playlist.absolute_uri, playlist.stream_info.bandwidth))
+    num_segments_to_analyze_per_playlist = args.segments
+    max_frames_to_show = args.frame_info_len
 
-    print("")
+    if m3u8_obj.is_variant:
+        print ("Master playlist. List of variants:")
 
-    for playlist in m3u8_obj.playlists:
-        analyze_variant(m3u8.load(playlist.absolute_uri), playlist.stream_info.bandwidth)
-else:
-    analyze_variant(m3u8_obj, 0)
+        for playlist in m3u8_obj.playlists:
+            print("\tPlaylist: {}, bw: {}".format(playlist.absolute_uri, playlist.stream_info.bandwidth))
 
-analyze_variants_frame_alignment()
+        print("")
+
+        for playlist in m3u8_obj.playlists:
+            analyze_variant(m3u8.load(playlist.absolute_uri), playlist.stream_info.bandwidth)
+    else:
+        analyze_variant(m3u8_obj, 0)
+
+    analyze_variants_frame_alignment()

@@ -58,9 +58,9 @@ def parse(content):
             state['expect_playlist'] = False
 
         elif line.startswith(protocol.ext_x_targetduration):
-            _parse_simple_parameter(line, data, float)
+            _parse_simple_parameter(line, data, float) # noinspection: PyTypeChecker
         elif line.startswith(protocol.ext_x_media_sequence):
-            _parse_simple_parameter(line, data, int)
+            _parse_simple_parameter(line, data, int) # noinspection: PyTypeChecker
         #elif line.startswith(protocol.ext_x_program_date_time):
         #    _, program_date_time = _parse_simple_parameter_raw_value(line, cast_date_time)
         #    if not data.get('program_date_time'):
@@ -102,7 +102,7 @@ def parse(content):
 
     return data
 
-def _parse_key(line):
+def _parse_key(line:str):
     params = ATTRIBUTELISTPATTERN.split(line.replace(protocol.ext_x_key + ':', ''))[1::2]
     key = {}
     for param in params:
@@ -184,7 +184,7 @@ def _parse_and_set_simple_parameter_raw_value(line, data, cast_to=str, normalize
     data[param] = value
     return data[param]
 
-def _parse_simple_parameter(line, data, cast_to=str):
+def _parse_simple_parameter(line, data, cast_to:type = str):
     return _parse_and_set_simple_parameter_raw_value(line, data, cast_to, True)
 
 def string_to_lines(string):

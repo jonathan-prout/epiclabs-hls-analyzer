@@ -2,7 +2,7 @@
 # Copyright 2014 Globo.com Player authors. All rights reserved.
 # Use of this source code is governed by a MIT License
 # license that can be found in the LICENSE file.
-
+import typing
 from collections import namedtuple
 import os
 import posixpath
@@ -309,13 +309,15 @@ class BasePathMixin(object):
 
 class GroupedBasePathMixin(object):
 
-    def _set_base_uri(self, new_base_uri):
+    def _set_base_uri(self, new_base_uri: str):
+        # noinspection: PyTypeChecker
         for item in self:
             item.base_uri = new_base_uri
 
-    base_uri = property(None, _set_base_uri)
+    base_uri = property(None, _set_base_uri)  # noinspection: PyTypeChecker
 
-    def _set_base_path(self, newbase_path):
+    def _set_base_path(self, newbase_path:str):
+        # noinspection: PyTypeChecker
         for item in self:
             item.base_path = newbase_path
 
@@ -364,7 +366,7 @@ class Segment(BasePathMixin):
         self.key = Key(base_uri=base_uri,**key) if key else None
 
 
-    def dumps(self, last_segment):
+    def dumps(self, last_segment: typing.Optional['Segment'] = None):
         output = []
         if last_segment and self.key != last_segment.key:
           output.append(str(self.key))
