@@ -27,7 +27,7 @@ class MpegReader(PayloadReader):
 
     def consumeData(self, pts):
         if(self.firstTimeStamp == -1):
-            self.firstTimeStamp = pts;
+            self.firstTimeStamp = pts
 
         if(pts != -1):
             self.timeUs = pts

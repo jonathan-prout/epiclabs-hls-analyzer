@@ -6,7 +6,7 @@
 class PayloadReader(object):
 
     def __init__(self):
-        self.dataBuffer = [];
+        self.dataBuffer = []
         self.framesInfo = ""
         self.frames = []
         

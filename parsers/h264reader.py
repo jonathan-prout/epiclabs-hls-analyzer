@@ -75,7 +75,7 @@ class H264Reader(PayloadReader):
 
     def consumeData(self, pts):
         if(self.firstTimeStamp == -1):
-            self.firstTimeStamp = pts;
+            self.firstTimeStamp = pts
 
         if(pts != -1):
             self.timeUs = pts
@@ -101,7 +101,7 @@ class H264Reader(PayloadReader):
                 
                 return i
 
-        return len(self.dataBuffer);
+        return len(self.dataBuffer)
 
     def _processNALUnit(self, start, limit, nalType):
         if(nalType == self.NAL_UNIT_TYPE_SPS):
@@ -111,7 +111,7 @@ class H264Reader(PayloadReader):
         elif(nalType == self.NAL_UNIT_TYPE_IDR):
             self._addNewFrame(self.SLICE_TYPE_I, self.timeUs)
         elif(nalType == self.NAL_UNIT_TYPE_SEI):
-            self._parseSEINALUnit(start, limit);
+            self._parseSEINALUnit(start, limit)
         elif(nalType == self.NAL_UNIT_TYPE_SLICE):
             self._parseSliceNALUnit(start, limit)
 
@@ -172,13 +172,13 @@ class H264Reader(PayloadReader):
         while True:
             data = seiParser.readUnsignedByte()
             if (data != 0xFF):
-                break;
+                break
 
         # Parse payload size
         while True:
             data = seiParser.readUnsignedByte()
             if (data != 0xFF):
-                break;
+                break
 
     def _parseSliceNALUnit(self, start, limit):
         sliceParser = BitReader(self.dataBuffer[start:limit])
@@ -213,10 +213,10 @@ class H264Reader(PayloadReader):
             if(chromaFormatIdc == 3):
                 spsParser.skipBits(1)
 
-            spsParser.readUnsignedExpGolombCodedInt(); # bit_depth_luma_minus8
-            spsParser.readUnsignedExpGolombCodedInt(); # bit_depth_chroma_minus8
-            spsParser.skipBits(1); # qpprime_y_zero_transform_bypass_flag
-            seqScalingMatrixPresentFlag = spsParser.readBit();
+            spsParser.readUnsignedExpGolombCodedInt() # bit_depth_luma_minus8
+            spsParser.readUnsignedExpGolombCodedInt() # bit_depth_chroma_minus8
+            spsParser.skipBits(1)  # qpprime_y_zero_transform_bypass_flag
+            seqScalingMatrixPresentFlag = spsParser.readBit()
 
             if(seqScalingMatrixPresentFlag == 1):
                 limit = 12
@@ -224,63 +224,63 @@ class H264Reader(PayloadReader):
                     limit = 8
 
                 for i in range(0, limit):
-                    seqScalingListPresentFlag = spsParser.readBit();
+                    seqScalingListPresentFlag = spsParser.readBit()
                     if(seqScalingListPresentFlag == 1):
                         if(i < 6):
                             self._skipScalingList(spsParser, 16)
                         else:
                             self._skipScalingList(spsParser, 64)
 
-        spsParser.readUnsignedExpGolombCodedInt(); # log2_max_frame_num_minus4
-        picOrderCntType = spsParser.readUnsignedExpGolombCodedInt();
+        spsParser.readUnsignedExpGolombCodedInt() # log2_max_frame_num_minus4
+        picOrderCntType = spsParser.readUnsignedExpGolombCodedInt()
         if(picOrderCntType == 0):
-            spsParser.readUnsignedExpGolombCodedInt(); # log2_max_pic_order_cnt_lsb_minus4
+            spsParser.readUnsignedExpGolombCodedInt() # log2_max_pic_order_cnt_lsb_minus4
         elif (picOrderCntType == 1):
-            spsParser.skipBits(1); # delta_pic_order_always_zero_flag
-            spsParser.readSignedExpGolombCodedInt(); # offset_for_non_ref_pic
-            spsParser.readSignedExpGolombCodedInt(); # offset_for_top_to_bottom_field
+            spsParser.skipBits(1) # delta_pic_order_always_zero_flag
+            spsParser.readSignedExpGolombCodedInt() # offset_for_non_ref_pic
+            spsParser.readSignedExpGolombCodedInt() # offset_for_top_to_bottom_field
 
-            numRefFramesInPicOrderCntCycle = spsParser.readUnsignedExpGolombCodedInt();
+            numRefFramesInPicOrderCntCycle = spsParser.readUnsignedExpGolombCodedInt()
 
             for i in range(0, numRefFramesInPicOrderCntCycle):
-                spsParser.readSignedExpGolombCodedInt(); #offset_for_ref_frame[i]
+                spsParser.readSignedExpGolombCodedInt() #offset_for_ref_frame[i]
 
-        self.numRefFrames = spsParser.readUnsignedExpGolombCodedInt(); # max_num_ref_frames
-        spsParser.skipBits(1); # gaps_in_frame_num_value_allowed_flag
+        self.numRefFrames = spsParser.readUnsignedExpGolombCodedInt() # max_num_ref_frames
+        spsParser.skipBits(1) # gaps_in_frame_num_value_allowed_flag
 
-        picWidthInMbs = spsParser.readUnsignedExpGolombCodedInt() + 1;
-        picHeightInMapUnits = spsParser.readUnsignedExpGolombCodedInt() + 1;
-        frameMbsOnlyFlag = spsParser.readBit();
+        picWidthInMbs = spsParser.readUnsignedExpGolombCodedInt() + 1
+        picHeightInMapUnits = spsParser.readUnsignedExpGolombCodedInt() + 1
+        frameMbsOnlyFlag = spsParser.readBit()
 
         frameHeightInMbs = picHeightInMapUnits
         if(frameMbsOnlyFlag == 0):
             frameHeightInMbs += picHeightInMapUnits
             spsParser.skipBits(1) # mb_adaptive_frame_field_flag
 
-        spsParser.skipBits(1); # direct_8x8_inference_flag
-        self.frameWidth = picWidthInMbs * 16;
-        self.frameHeight = frameHeightInMbs * 16;
+        spsParser.skipBits(1) # direct_8x8_inference_flag
+        self.frameWidth = picWidthInMbs * 16
+        self.frameHeight = frameHeightInMbs * 16
 
-        frameCroppingFlag = spsParser.readBit();
+        frameCroppingFlag = spsParser.readBit()
 
         if (frameCroppingFlag == 1):
-            frameCropLeftOffset = spsParser.readUnsignedExpGolombCodedInt();
-            frameCropRightOffset = spsParser.readUnsignedExpGolombCodedInt();
-            frameCropTopOffset = spsParser.readUnsignedExpGolombCodedInt();
-            frameCropBottomOffset = spsParser.readUnsignedExpGolombCodedInt();
+            frameCropLeftOffset = spsParser.readUnsignedExpGolombCodedInt()
+            frameCropRightOffset = spsParser.readUnsignedExpGolombCodedInt()
+            frameCropTopOffset = spsParser.readUnsignedExpGolombCodedInt()
+            frameCropBottomOffset = spsParser.readUnsignedExpGolombCodedInt()
             cropUnitX, cropUnitY = 0, 0
 
             if (chromaFormatIdc == 0):
-                cropUnitX = 1;
-                cropUnitY = 2 - (1 if (frameMbsOnlyFlag == 1) else 0);
+                cropUnitX = 1
+                cropUnitY = 2 - (1 if (frameMbsOnlyFlag == 1) else 0)
             else:
-                subWidthC =  (1 if (chromaFormatIdc == 3) else 2);
-                subHeightC = (2 if (chromaFormatIdc == 1) else 1);
-                cropUnitX = subWidthC;
-                cropUnitY = subHeightC * (2 - (1 if (frameMbsOnlyFlag == 1) else 0));
+                subWidthC =  (1 if (chromaFormatIdc == 3) else 2)
+                subHeightC = (2 if (chromaFormatIdc == 1) else 1)
+                cropUnitX = subWidthC
+                cropUnitY = subHeightC * (2 - (1 if (frameMbsOnlyFlag == 1) else 0))
 
-            self.frameWidth -= (frameCropLeftOffset + frameCropRightOffset) * cropUnitX;
-            self.frameHeight -= (frameCropTopOffset + frameCropBottomOffset) * cropUnitY;
+            self.frameWidth -= (frameCropLeftOffset + frameCropRightOffset) * cropUnitX
+            self.frameHeight -= (frameCropTopOffset + frameCropBottomOffset) * cropUnitY
 
         vui_parameters_present_flag = spsParser.readBit()
         if (vui_parameters_present_flag == 1):

@@ -23,8 +23,8 @@ class PESReader(object):
     def __init__(self, pid, ts_type ):
         self.pid = pid
         self.type = ts_type
-        self.lastPts = -1;
-        self.pesLength = 0;
+        self.lastPts = -1
+        self.pesLength = 0
 
         if (ts_type == self.TS_STREAM_TYPE_AAC):
             self.payloadReader = ADTSReader()
@@ -55,15 +55,15 @@ class PESReader(object):
         pesLength = packet.readUnsignedByte()
 
         if (timingFlags == 0x02 or timingFlags == 0x03):
-             packet.skipBits(4); # '0010'
-             pts = packet.readBitsLong(3) << 30;
-             packet.skipBits(1); # marker_bit
-             pts |= packet.readBitsLong(15) << 15;
-             packet.skipBits(1); # marker_bit
-             pts |= packet.readBitsLong(15);
-             packet.skipBits(1); # marker_bit
+             packet.skipBits(4) # '0010'
+             pts = packet.readBitsLong(3) << 30
+             packet.skipBits(1) # marker_bit
+             pts |= packet.readBitsLong(15) << 15
+             packet.skipBits(1) # marker_bit
+             pts |= packet.readBitsLong(15)
+             packet.skipBits(1) # marker_bit
 
-             self.lastPts = self._ptsToTimeUs(pts);
+             self.lastPts = self._ptsToTimeUs(pts)
 
              if (timingFlags == 0x03):
                  packet.skipBytes(5) # skipping dts
@@ -71,7 +71,7 @@ class PESReader(object):
     def _ptsToTimeUs(self, pts):
         if (pts > 4294967295):
             # decrement 2^33
-            pts -= 8589934592;
+            pts -= 8589934592
 
 
         timeUs = pts * 1000000 / 90000

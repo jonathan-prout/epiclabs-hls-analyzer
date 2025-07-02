@@ -111,7 +111,7 @@ class TSSegmentParser(object):
         adaptation_field = (packetParser.readUnsignedByte() & 0x30) >> 4
 
         if (adaptation_field > 1):
-            length = packetParser.readUnsignedByte();
+            length = packetParser.readUnsignedByte()
             if (length > 0):
                 packetParser.skipBytes(length)
 

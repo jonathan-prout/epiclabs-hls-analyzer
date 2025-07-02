@@ -87,7 +87,7 @@ class BitReader(object):
         codeNum = self.readExpGolombCodeNum()
         sign = 1
         if(codeNum % 2 == 0):
-            sign = -1;
+            sign = -1
 
         return sign * ((codeNum + 1) / 2)
 
@@ -95,7 +95,7 @@ class BitReader(object):
         leadingZeros = 0
         value = 0
         while (self.readBit() == 0):
-            leadingZeros = leadingZeros +1;
+            leadingZeros = leadingZeros +1
 
         if(leadingZeros > 0):
             value = self.readBits(leadingZeros)

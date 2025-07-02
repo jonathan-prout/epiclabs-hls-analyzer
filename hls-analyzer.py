@@ -73,20 +73,20 @@ def get_range(segment_range):
     start = int(params[1])
     length = int(params[0])
 
-    return "bytes={}-{}".format(start, start+length-1);
+    return "bytes={}-{}".format(start, start+length-1)
 
 def printFormatInfo(ts_parser):
-    print ("\t** Tracks and Media formats **")
+    print("\t** Tracks and Media formats **")
 
     for i in range(0, ts_parser.getNumTracks()):
         track = ts_parser.getTrack(i)
-        print ("\tTrack #{} - Type: {}, Format: {}".format(i,
+        print("\tTrack #{} - Type: {}, Format: {}".format(i,
             track.payloadReader.getMimeType(), track.payloadReader.getFormat()))
 
 def printTimingInfo(ts_parser, segment):
-    print ("\n\t** Timing information **")
+    print("\n\t** Timing information **")
     print("\tSegment declared duration: {}".format(segment.duration))
-    minDuration = 0;
+    minDuration = 0
     for i in range(0, ts_parser.getNumTracks()):
         track = ts_parser.getTrack(i)
         print ("\tTrack #{} - Duration: {} s, First PTS: {} s, Last PTS: {} s".format(i,
@@ -106,11 +106,11 @@ def analyzeFrames(ts_parser, bw, segment_index):
 
     for i in range(0, ts_parser.getNumTracks()):
         track = ts_parser.getTrack(i)
-        print ("\tTrack #{0} - Frames: ".format(i)),
+        print("\tTrack #{0} - Frames: ".format(i)),
 
         frameCount = min(max_frames_to_show, len(track.payloadReader.frames))
         for j in range(0, frameCount):
-            print "{0}".format(track.payloadReader.frames[j].type),
+            print("{0}".format(track.payloadReader.frames[j].type))
         if track.payloadReader.getMimeType().startswith("video/"):
             print("\tAA: {}, BB: {}".format(segment_index, bw))
             if len(track.payloadReader.frames) > 0:
@@ -196,9 +196,9 @@ if(m3u8_obj.is_variant):
     print ("Master playlist. List of variants:")
 
     for playlist in m3u8_obj.playlists:
-        print ("\tPlaylist: {}, bw: {}".format(playlist.absolute_uri, playlist.stream_info.bandwidth))
+        print("\tPlaylist: {}, bw: {}".format(playlist.absolute_uri, playlist.stream_info.bandwidth))
 
-    print ("")
+    print("")
 
     for playlist in m3u8_obj.playlists:
         analyze_variant(m3u8.load(playlist.absolute_uri), playlist.stream_info.bandwidth)

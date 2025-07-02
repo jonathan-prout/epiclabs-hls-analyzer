@@ -46,7 +46,7 @@ class ADTSReader(PayloadReader):
             self.timeUs = pts
 
         if(self.firstTimeStamp == -1):
-            self.firstTimeStamp = self.timeUs;
+            self.firstTimeStamp = self.timeUs
 
         offset = 0
         state = self.STATE_FIND_SYNC
@@ -83,7 +83,7 @@ class ADTSReader(PayloadReader):
             if ((dataRead & 0xfff6) == 0xfff0):
                 return i
 
-        return len(self.dataBuffer);
+        return len(self.dataBuffer)
 
     def _parseAACHeader(self, start):
         aacHeaderParser = BitReader(self.dataBuffer[start:start + self.ADTS_SYNC_SIZE + self.ADTS_HEADER_SIZE])
@@ -97,14 +97,14 @@ class ADTSReader(PayloadReader):
         else:
             self.sampleRate = sampleRateIndex
 
-        self.frameDuration = (1000000 * 1024) / self.sampleRate;
+        self.frameDuration = (1000000 * 1024) / self.sampleRate
         self.frames.append(Frame("I", self.timeUs))
 
         aacHeaderParser.skipBits(1)
         self.channels = aacHeaderParser.readBits(3)
 
         aacHeaderParser.skipBits(4)
-        self.currentFrameSize = aacHeaderParser.readBits(13) - self.ADTS_HEADER_SIZE - self.ADTS_SYNC_SIZE;
+        self.currentFrameSize = aacHeaderParser.readBits(13) - self.ADTS_HEADER_SIZE - self.ADTS_SYNC_SIZE
 
         if (hasCrc):
-            self.currentFrameSize -= self.ADTS_CRC_SIZE;
+            self.currentFrameSize -= self.ADTS_CRC_SIZE
