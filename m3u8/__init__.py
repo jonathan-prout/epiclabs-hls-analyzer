@@ -9,23 +9,16 @@ PYTHON_MAJOR_VERSION = sys.version_info
 import os
 import posixpath
 
-try:
-    from cookielib import CookieJar
-except ImportError:
-    from http.cookiejar import CookieJar
+import requests
+
+from urllib.parse import urlparse, urljoin
 
 
-try:
-    import urlparse as url_parser
-    import urllib2
-    cj = CookieJar()
-    cookieProcessor = urllib2.HTTPCookieProcessor(cj)
-    opener = urllib2.build_opener(cookieProcessor)
-    urlopen = opener.open
-except ImportError:
-    import urllib.parse as url_parser
-    from urllib.request import urlopen as url_opener
-    urlopen = url_opener
+
+# Create a session with cookie support
+session = requests.Session()
+urlopen = session.get
+
 
 
 from m3u8.model import M3U8, Playlist, IFramePlaylist, Media, Segment
@@ -51,33 +44,25 @@ def load(uri):
     else:
         return _load_from_file(uri)
 
-def getCookieProcessor():
-    return cookieProcessor
 
-# Support for python3 inspired by https://github.com/szemtiv/m3u8/
+
+
 def _load_from_uri(uri):
-    resource = urlopen(uri)
     base_uri = _parsed_url(_url_for(uri))
-    if PYTHON_MAJOR_VERSION < (3,):
-        content = _read_python2x(resource)
-    else:
-        content = _read_python3x(resource)
+    content = session.get(uri).text
     return M3U8(content, base_uri=base_uri)
 
 def _url_for(uri):
-    return urlopen(uri).geturl()
+    response = session.head(uri, allow_redirects=True)
+    return response.url
 
 def _parsed_url(url):
-    parsed_url = url_parser.urlparse(url)
+    parsed_url = urlparse(url)
     prefix = parsed_url.scheme + '://' + parsed_url.netloc
     base_path = posixpath.normpath(parsed_url.path + '/..')
-    return url_parser.urljoin(prefix, base_path)
+    return urljoin(prefix, base_path)
 
-def _read_python2x(resource):
-    return resource.read().strip()
 
-def _read_python3x(resource):
-    return  resource.read().decode(resource.headers.get_content_charset(failobj="utf-8"))
 
 def _load_from_file(uri):
     with open(uri) as fileobj:

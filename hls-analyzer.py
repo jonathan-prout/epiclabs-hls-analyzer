@@ -3,48 +3,42 @@
 # Use of this source code is governed by a MIT License
 # license that can be found in the LICENSE file.
 
-import errno
-import os
-import logging
-import sys
 import argparse
 import m3u8
-from bitreader import BitReader
 from ts_segment import TSSegmentParser
 from videoframesinfo import VideoFramesInfo
 
-try:
-    import urllib2
-except ImportError:
-    from urllib.request import urlopen as urllib2
+
 
 num_segments_to_analyze_per_playlist = 1
 max_frames_to_show = 30
 
 videoFramesInfoDict = dict()
 
-def download_url(uri, httpRange=None):
+
+def download_url(uri, httpRange:str = None):
     print("\n\t** Downloading {url}, Range: {httpRange} **".format(url=uri, httpRange=httpRange))
 
-    opener = urllib2.build_opener(m3u8.getCookieProcessor())
-    if(httpRange is not None):
-        opener.addheaders.append(('Range', httpRange))
+    headers = {}
+    if httpRange is not None:
+        headers['Range'] = httpRange
 
-    response = opener.open(uri)
-    content = response.read()
-    response.close()
 
-    return content
+    response = m3u8.session.get(uri, headers=headers)
+    response.raise_for_status()  # Raises an exception for bad status codes
+
+    return response.content
+
 
 def analyze_variant(variant, bw):
-    print ("***** Analyzing variant ({}) *****".format(bw))
-    print ("\n\t** Generic information **")
-    print ("\tVersion: {}".format(variant.version))
-    print ("\tStart Media sequence: {}".format(variant.media_sequence))
-    print ("\tIs Live: {}".format(not variant.is_endlist))
-    print ("\tEncrypted: {}".format(variant.key is not None))
-    print ("\tNumber of segments: {}".format(len(variant.segments)))
-    print ("\tPlaylist duration: {}".format(get_playlist_duration(variant)))
+    print("***** Analyzing variant ({}) *****".format(bw))
+    print("\n\t** Generic information **")
+    print("\tVersion: {}".format(variant.version))
+    print("\tStart Media sequence: {}".format(variant.media_sequence))
+    print("\tIs Live: {}".format(not variant.is_endlist))
+    print("\tEncrypted: {}".format(variant.key is not None))
+    print("\tNumber of segments: {}".format(len(variant.segments)))
+    print("\tPlaylist duration: {}".format(get_playlist_duration(variant)))
     
     start = 0
     videoFramesInfoDict[bw] = VideoFramesInfo()
@@ -175,8 +169,8 @@ def analyze_segment(segment, bw, segment_index):
 def analyze_variants_frame_alignment():
     df = videoFramesInfoDict.copy()
     bw, vf = df.popitem()
-    for bwkey, frameinfo in df.iteritems():
-        for segment_index, value in frameinfo.segmentsFirstFramePts.iteritems():
+    for bwkey, frameinfo in df.items():
+        for segment_index, value in frameinfo.segmentsFirstFramePts.items():
             if vf.segmentsFirstFramePts[segment_index] != value:
                 print ("Warning: Variants {} bps and {} bps, segment {}, are not aligned (first frame PTS not equal {} != {})".format(bw, bwkey, segment_index, vf.segmentsFirstFramePts[segment_index], value))
 

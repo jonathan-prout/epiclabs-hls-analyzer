@@ -21,13 +21,13 @@ class BitReader(object):
     def getPosition(self):
         return self.byteOffset * 8 + self.bitOffset
 
-    def setPosition(self, newPosition):
-        self.byteOffset = newPosition / 8
-        self.bitOffset = newPosition % 8
+    def setPosition(self, newPosition:int):
+        self.byteOffset = int(newPosition // 8)
+        self.bitOffset = int(newPosition) % 8
 
     def skipBits(self, n):
-        self.byteOffset += (n / 8)
-        self.bitOffset += (n % 8)
+        self.byteOffset += int(n // 8)
+        self.bitOffset += int(n % 8)
 
         if (self.bitOffset > 7):
             self.byteOffset = self.byteOffset + 1
