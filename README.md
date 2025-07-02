@@ -23,14 +23,14 @@ Optional arguments:
 
 ## Example of use
 
-`python hls-analyzer.py https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8`
+`python hls-analyzer.py https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8`
 
 Output:
 
 ```
 Master playlist. List of variants:
-    Playlist: https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear1/prog_index.m3u8, bw: 232370
-    Playlist: https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear2/prog_index.m3u8, bw: 649879
+    Playlist: https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/gear1/prog_index.m3u8, bw: 232370
+    Playlist: https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/gear2/prog_index.m3u8, bw: 649879
 
 
 ***** Analyzing variant (232370) *****
